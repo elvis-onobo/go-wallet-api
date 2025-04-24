@@ -20,6 +20,7 @@ func NewRouter() http.Handler {
 	r.Group(func(protected chi.Router) {
 		protected.Use(middleware.JWTMiddleware)
 		protected.Post("/wallet/fund", handler.FundWalletHandler)
+		protected.Post("/wallet/withdraw", handler.WithdrawHandler)
 	})
 
 	return r

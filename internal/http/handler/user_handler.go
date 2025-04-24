@@ -116,3 +116,37 @@ func FundWalletHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "User not found", http.StatusNotFound)
 }
+
+func WithdrawHandler(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Amount float64 `json:"amount"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode((&req)); err != nil {
+		http.Error(w, "Invalid Request", http.StatusBadRequest)
+		return
+	}
+
+	if req.Amount <= 0 {
+		http.Error(w, "Amount must be greater than zero", http.StatusBadRequest)
+		return
+	}
+
+	userID := r.Context().Value(middleware.UserIDKey).(int)
+
+	for i, user := range users {
+		if user.ID == userID {
+			if user.Balance < req.Amount {
+				http.Error(w, "Insufficient funds", http.StatusBadRequest)
+				return
+			}
+
+			users[i].Balance -= req.Amount
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(users[i])
+			return
+		}
+	}
+
+	http.Error(w, "User not found", http.StatusNotFound)
+}
