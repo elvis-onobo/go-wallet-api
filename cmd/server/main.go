@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	myHttp "github.com/elvis-onobo/go-wallet-api/internal/http"
+	"github.com/elvis-onobo/go-wallet-api/pkg/db"
 )
 
 func main() {
+	db.Init()
 	router := myHttp.NewRouter()
 
 	log.Println("Starting server on :8080")

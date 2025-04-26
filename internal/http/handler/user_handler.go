@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/elvis-onobo/go-wallet-api/internal/http/middleware"
+	"github.com/elvis-onobo/go-wallet-api/pkg/db"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,7 +18,6 @@ type User struct {
 }
 
 var users = []User{}
-var nextID = 1
 
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
@@ -27,23 +27,23 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+
+	var id int
+	err := db.Conn.QueryRow("INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id", user.Username, string(hashedPassword)).Scan(&id)
 
 	if err != nil {
-		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		http.Error(w, "Could not create user", http.StatusInternalServerError)
 		return
 	}
-	user.Password = string(hashedPassword)
-
-	user.ID = nextID
-	nextID++
-
-	users = append(users, user)
 
 	user.Password = ""
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":       id,
+		"username": user.Username,
+	})
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +84,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
-		"token": token,
+		"token":    token,
+		"username": req.Username,
 	})
 }
 

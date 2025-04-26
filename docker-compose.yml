@@ -1,0 +1,15 @@
+services:
+  walletapi-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: walletapi
+      POSTGRES_USER: postgres
+    volumes:
+      - walletapi-db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  walletapi-db:
