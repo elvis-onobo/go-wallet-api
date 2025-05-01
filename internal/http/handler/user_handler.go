@@ -43,6 +43,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"id":       id,
 		"username": user.Username,
+		"balance":  user.Balance,
 	})
 }
 
