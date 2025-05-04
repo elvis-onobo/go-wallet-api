@@ -22,10 +22,10 @@ var users = []User{}
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
 
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
-	}
+	// if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	// 	http.Error(w, "Invalid request payload", http.StatusBadRequest)
+	// 	return
+	// }
 
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
