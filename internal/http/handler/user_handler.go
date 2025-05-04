@@ -20,16 +20,16 @@ type User struct {
 var users = []User{}
 
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
-	// var user User
+	var user User
 
-	// if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-	// 	http.Error(w, "Invalid request payload", http.StatusBadRequest)
-	// 	return
-	// }
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	// hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
-	var id int
+	// var id int
 	err := db.Conn.QueryRow("INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id", user.Username, string(hashedPassword)).Scan(&id)
 
 	if err != nil {
